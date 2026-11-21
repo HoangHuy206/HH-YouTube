@@ -2,6 +2,15 @@
 
 An open-source YouTube enhancement for iOS and Android.
 
+<p>
+  <a href="https://github.com/HoangHuy206/HH-YouTube/releases/latest/download/HH_1.1.1_YouTube.apk">
+    <img src="https://img.shields.io/badge/T%E1%BA%A3i_ngay_APK_(Android)-HH__1.1.1__YouTube.apk-ff0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Download HH_1.1.1_YouTube.apk">
+  </a>
+  <a href="https://github.com/HoangHuy206/HH-YouTube/releases/latest">
+    <img src="https://img.shields.io/badge/Releases-APK_%26_IPA-24292f?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Releases">
+  </a>
+</p>
+
 ## Features
 
 | Area | Included |

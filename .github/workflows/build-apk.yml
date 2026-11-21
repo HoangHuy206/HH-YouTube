@@ -1,6 +1,9 @@
 name: APK
 
 on:
+  push:
+    tags:
+      - "v*"
   release:
     types: [published]
   workflow_dispatch:
@@ -77,11 +80,23 @@ jobs:
           mv -f "$apk_path" "artifacts/$(basename "$apk_path")"
           echo "apk=artifacts/$(basename "$apk_path")" >> "$GITHUB_OUTPUT"
 
-      - name: Attach APK to release
-        if: github.event_name == 'release'
+      - name: Publish or attach APK to GitHub Release
+        if: github.event_name == 'release' || startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" "${{ steps.build.outputs.apk }}" --clobber
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          if [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            tag="${{ github.event.release.tag_name }}"
+          fi
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "${{ steps.build.outputs.apk }}" --clobber
+          else
+            gh release create "$tag" "${{ steps.build.outputs.apk }}" \
+              --title "HH YouTube ${tag}" \
+              --notes "### Android (1-File All-in-One APK)
+          - Bấm tải trực tiếp file **$(basename "${{ steps.build.outputs.apk }}")** bên dưới về điện thoại Android và cài thẳng (chỉ 1 file duy nhất, tên ứng dụng **YouTube**, không cần root, không cần GmsCore/MicroG)."
+          fi
 
       - uses: actions/upload-artifact@v7
         with:
