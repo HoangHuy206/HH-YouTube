@@ -1,28 +1,40 @@
 # HH
 
-An open-source YouTube enhancement for iOS.
+An open-source YouTube enhancement for iOS and Android.
 
 ## Features
 
 | Area | Included |
 |---|---|
-| Downloads | Video, audio, Shorts and whole-playlist downloads; save to the library, Photos or the share sheet; sorting; backup and restore |
-| Queue | Play next or play last without Premium, with reorder, swipe to remove, shuffle, loop and clear |
-| Playback | Background playback, PiP, loop, speed controls, default speed, gestures, tap to seek and an HLS playback mode |
-| SponsorBlock | Category controls, progress markers, skip modes and configurable alerts |
-| Interface | OLED mode, overlay controls, navigation cleanup and native share sheets |
-| Liquid Glass | Glass tab bar, top bar buttons, menus, sheets, player buttons and YTKACE popups on iOS 26, with shrink on scroll and a selected tab color |
-| Tabs | Hide, reorder and add YouTube destinations |
-| Library | Downloaded video, Shorts and audio players with resume support |
-| Settings | Searchable settings, 15 languages and a native YouTube settings section |
+| Downloads | Built-in Video (up to 4K), Audio (`M4A`/`Opus`), Shorts and whole-Playlist / batch downloads directly inside the app on both iOS and Android — no external downloader app required |
+| Queue | Play next, enqueue, drag-to-reorder, swipe to remove, shuffle, loop and clear without Premium |
+| Playback | Background playback, Popup / Picture-in-Picture (PiP), sleep timer, loop, speed & pitch controls, default 1080p/4K resolution, swipe gestures (volume/brightness) and double-tap to seek |
+| SponsorBlock | Built-in category controls, timeline color markers, automatic/manual skip modes and configurable alerts (enabled by default) |
+| Return YouTube Dislike | Public dislike counts via Return YouTube Dislike API and DeArrow alternative thumbnails/titles |
+| Account Login | Direct Google / YouTube account login inside the app without requiring GmsCore or MicroG |
+| Interface | OLED pure-black mode (enabled by default), ad-free feed & player, Shorts filtering, and native share sheets |
+| Liquid Glass (iOS 26) | Glass tab bar, top bar buttons, menus, sheets, player buttons and popups on iOS 26 |
+| Tabs & Filters | Customize main page tabs, channel tabs, keyword/channel filters, and startup destinations |
+| Settings | Searchable settings and multilingual interface including English & Vietnamese (`Tiếng Việt`) |
 
 ## Compatibility
 
+### Android (Single All-in-One APK)
+- **Android:** 7.0 (API 24) and newer — **1 single APK file**, no root, **no GmsCore/MicroG**, and **no external downloader** required
+- **Architecture:** `arm64-v8a` (default) and `armeabi-v7a`
+- **Package ID:** `com.hoanghuy.hh` (installs side-by-side with stock YouTube)
+- **HH:** 1.1.1
+
+| APK | Base | Requirements |
+| --- | --- | --- |
+| `HH_1.1.1_YouTube.apk` | PipePipe 5.6.0 (`arm64-v8a`) | Install directly — standalone single file (~34 MB) |
+
+*(An optional `rvx` edition built against stock YouTube 21.13.164 is also available via `HH_APK_EDITION=rvx` in the build script/workflow).*
+
+### iOS
 - **iOS:** 15.0 and newer (tweak packages); the prebuilt IPAs follow their YouTube base
 - **Architecture:** arm64
 - **HH:** 1.1.1
-
-YouTube 21.39.4 requires iOS 17, so two IPAs are published:
 
 | IPA | YouTube base | iOS |
 | --- | --- | --- |
@@ -33,32 +45,37 @@ Pick the 21.39.4 build unless you are on iOS 16. Either one installs with TrollS
 
 ## Install
 
-**Jailbroken.** Add the repository in Sileo, Zebra or Cydia:
+### Android
+Download `HH_1.1.1_YouTube.apk` and tap to install directly on your phone — **only 1 APK file is needed**. Open **HH** to watch ad-free with OLED black mode, SponsorBlock, background play, PiP, and built-in Video/Audio/Playlist downloads ready out of the box. To sign in to your YouTube account, open **Settings → Account → Log in to YouTube**.
+
+### iOS (Jailbroken)
+Add the repository in Sileo, Zebra or Cydia:
 
 ```
 https://itzzace.github.io/ytkace/
 ```
 
-Rootless and roothide packages are both published. The repository page also has an
-[Add to Sileo](https://itzzace.github.io/ytkace/) button.
+Rootless and roothide packages are both published.
 
-**Sideloaded.** Download the IPA for your iOS version from the [latest release](https://github.com/HoangHuy206) and install it with TrollStore, AltStore, SideStore or LiveContainer.
+### iOS (Sideloaded)
+Download the IPA for your iOS version from the [latest release](https://github.com/HoangHuy206/HH-YouTube/releases) and install it with TrollStore, AltStore, SideStore or LiveContainer.
 
 ## Build
 
+### Android APK
+- **GitHub Actions:** Open the **APK** workflow (`.github/workflows/build-apk.yml`) and click **Run workflow** (defaults to `allinone` single-APK edition; `rvx` is also selectable).
+- **Local CLI (Java 21+ & Python 3):**
+  ```bash
+  bash Scripts/build-apk.sh
+  ```
+
+### iOS IPA & Deb
 Fork the repository, enable Actions, open the **IPA** workflow and provide a direct link to a decrypted YouTube IPA you are legally allowed to use. The completed workflow provides the injected IPA as an artifact. The **Deb** workflow builds the tweak package.
-
-To build both IPAs in one run, fill in the second URL field as well: the workflow takes an iOS 16 base (21.33.6) and an optional iOS 17+ base (21.39.4), and uploads them as separate artifacts. Leaving the second field empty builds a single IPA.
-
-## Settings
-
-Open the HH tab and tap the gear, or open YouTube Settings and choose HH.
-Both pages carry the same options, and the YouTube Settings section has a search bar.
 
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/framed/settings.png" width="220" alt="YTKACE settings">
+  <img src="screenshots/framed/settings.png" width="220" alt="HH settings">
   <img src="screenshots/framed/video-download-menu.png" width="220" alt="Video download menu">
   <img src="screenshots/framed/audio-player.png" width="220" alt="Audio player">
 </p>
@@ -77,63 +94,10 @@ Both pages carry the same options, and the YouTube Settings section has a search
   <sub>Liquid Glass · Menus · Sheets · Tab Bar</sub>
 </p>
 
-<details>
-  <summary>More screenshots</summary>
-  <br>
-  <p align="center">
-    <img src="screenshots/framed/shorts-download-menu.png" width="190" alt="Shorts download menu">
-    <img src="screenshots/framed/tab-editor.png" width="190" alt="Tab editor">
-    <img src="screenshots/framed/download-progress.png" width="190" alt="Download progress">
-  </p>
-  <p align="center">
-    <img src="screenshots/framed/download-library.png" width="190" alt="Download library">
-    <img src="screenshots/framed/video-player.png" width="190" alt="Downloaded video player">
-    <img src="screenshots/framed/player-settings.png" width="190" alt="Player settings">
-  </p>
-  <p align="center">
-    <img src="screenshots/framed/sponsorblock-settings.png" width="190" alt="SponsorBlock settings">
-    <img src="screenshots/framed/audio-queue.png" width="190" alt="Audio queue">
-  </p>
-  <p align="center">
-    <img src="screenshots/framed/glass-settings.png" width="190" alt="Liquid Glass settings">
-    <img src="screenshots/framed/glass-share-sheet.png" width="190" alt="Liquid Glass share sheet">
-    <img src="screenshots/framed/glass-home.png" width="190" alt="Liquid Glass tab bar">
-  </p>
-</details>
-
 ## Privacy
 
-HH has no activation service, analytics, telemetry or updater.
-
-## Notes
-
-The playback fix that shipped after 0.8.0 was taken from another project without credit and has been removed. The current Playback Fix is adapted from Mark02's YTPlaybackFix under the MIT license and is credited in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). If you find anything else that isn't credited, open an issue and it will be credited or removed.
-
-## Contributing
-
-Contributions are welcome — issues and pull requests both help.
-
-For bug reports, include your device, iOS version and YouTube version.
-
-For pull requests, keep each one focused on a single change and match the
-surrounding style. Two things worth knowing:
-
-- Hooks are installed by name through the helpers in `Tweak/Runtime/Hooking.h`,
-  not a hooking framework, so a missing class or selector fails quietly instead
-  of crashing on older YouTube versions.
-- New user-facing strings go through `YTKACELocalized` and belong in
-  `Resources/YTKACE.bundle/en.lproj/Localizable.strings`. Translations for the
-  other 14 languages can follow separately.
-
-Build instructions are above.
-
-## Donate
-
-If YTKACE is useful to you, you can support it on [Ko-fi](https://ko-fi.com/itzzace) or with crypto:
-
-- **BTC:** `bc1q6ahl2mghgq34r3w26yhwevsza0vl8436gugxke`
-- **LTC:** `LYQ2ivZ52d2zAsm896MwWEkPEi15WwprS4`
+HH has no activation service, analytics, telemetry or forced updater.
 
 ## License
 
-YTKACE source is available under the [MIT License](LICENSE). See [Third-Party Notices](THIRD_PARTY_NOTICES.md) for components and services with separate terms.
+iOS tweak source is available under the [MIT License](LICENSE). Android packages built from PipePipe / ReVanced Extended follow **GPLv3**; see [Third-Party Notices](THIRD_PARTY_NOTICES.md) for full component licenses and attributions.

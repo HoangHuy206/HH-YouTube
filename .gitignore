@@ -6,8 +6,16 @@ dist/
 DerivedData/
 *.dSYM/
 *.ipa
+*.apk
+*.apkm
+*.idsig
 *.deb
 *.zip
+*.keystore
+*.jks
+*.p12
+releases/
+morphe-data/
 *.xcarchive
 .DS_Store
 __pycache__/

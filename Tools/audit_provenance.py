@@ -23,7 +23,7 @@ FORBIDDEN_PREFERENCE_PREFIXES = (
     "YTKACESponsor" + "Color",
 )
 STRING_LITERAL = re.compile(r'@?"([^"\n]*)"')
-SKIP = {".git", ".build", "dist", "packages", ".theos"}
+SKIP = {".git", ".build", "dist", "packages", ".theos", "releases", "morphe-data"}
 
 
 def main() -> int:

@@ -1,28 +1,18 @@
 # Feature matrix
 
-## Implemented
+## Implemented (iOS IPA & Android Single-File APK)
 
-| Area | Features |
-| --- | --- |
-| Core | Always-on local runtime and legacy preference-key migration |
-| Ads | Player ads, slots, placements, ad parameters, playback ad state, and companion ads |
-| SponsorBlock | Segment lookup, timeline markers, automatic skip, Ask mode, skipped HUD, sound, and haptic feedback |
-| Downloads | SABR adaptive video/audio downloading, FFmpeg MP4 remuxing, Shorts downloading, library, custom AVPlayer player, mini-player, share, delete, import, backup, restore, sorting, and layouts |
-| Playback | Background playback, PiP, native-visibility overlay controls, loop, speed, default playback speed, sleep timer, and custom double-tap duration |
-| Appearance | OLED theme and Premium logo |
-| Streaming | Legacy quality mode, autoplay blocking, cellular HD preference, and custom double-tap duration |
-| Tab bar | Hide and reorder tabs, Create-tab conversion, YTKACE downloads tab, Music/Live/Gaming/News/Sports tabs, startup selection, label hiding, and custom names |
-| Gestures | Volume, brightness, and hold-to-seek |
-| Overlay | Double-tap blocking, continue-watching and quick-action hiding, persistent controls, dark-overlay removal, captions/progress controls, previous/next modes, related-video hiding, and creator-product hiding across the feed, player, and Shorts |
-| Shorts | Bottom progress bar, automatic advance, feed hiding, and pause-card blocking |
-| Navigation | Cast confirmation, status-bar behavior, logo, account, search, cast, and notification hiding |
-| Miscellaneous | Copy Comment, iPadOS mode, drag-and-drop blocking, universal mini-player flags, HUD suppression, forced LTR, age-gate flags, caption control, and cache-only startup cleanup |
-
-## Not yet implemented or partial
-
-| Area | Features |
-| --- | --- |
-| Downloads | MP3 conversion and non-MP4 format conversion |
-| YouTube surfaces | Runtime validation is still required for selectors that vary between YouTube releases |
-| Compatibility | Non-jailbroken device validation and future YouTube/iOS regression testing |
-
+| Area | iOS (`YTKACE.dylib` / IPA) | Android (`HH_1.1.1_YouTube.apk` — All-in-One) |
+| --- | --- | --- |
+| Core & Install | Always-on local runtime; single sideloadable IPA | Standalone single APK (`com.hoanghuy.hh`), installs directly without root, GmsCore, or companion apps |
+| Account Login | Native YouTube iOS sign-in | Built-in WebView YouTube account login (`Settings → Account → Log in to YouTube`) with cookie sync & age-restricted video access |
+| Ads | Player ads, slots, placements, ad parameters, playback ad state, and companion ads | 100% ad-free video streams, feeds, search results, and comments |
+| SponsorBlock | Segment lookup, timeline markers, automatic skip, Ask mode, skipped HUD, sound, and haptic feedback | Built-in SponsorBlock (enabled by default): category controls, seekbar color markers, auto-skip, manual skip button, and alerts |
+| Dislikes & Titles | Native player integration | Built-in Return YouTube Dislike (RYD) and DeArrow alternative thumbnails & titles |
+| Downloads | Built-in SABR adaptive video/audio downloader, FFmpeg MP4 remuxing, Shorts & playlist downloading, offline library, mini-player, backup & restore | Built-in multi-threaded Video (up to 4K `2160p`), Audio (`M4A`/`Opus`), Shorts, and batch Playlist/Channel downloader with pause/resume manager |
+| Queue | Play next / play last without Premium, reorder, swipe to remove, shuffle, loop, and clear | Built-in Play Queue without Premium: Play next, Enqueue, drag-to-reorder, remove, shuffle, repeat/loop, and background queue |
+| Playback | Background playback, PiP, loop, speed controls, default speed, sleep timer, and custom double-tap duration | Background audio playback, floating Popup / PiP player, sleep timer, custom speed & pitch controls, 1080p default / 4K support, Android Auto support |
+| Appearance | OLED theme, Liquid Glass (iOS 26), and Premium logo | OLED pure-black (`#000000`) theme enabled by default, custom `HH` crimson/OLED launcher icon, grid/list layout controls |
+| Tabs & Filters | Hide and reorder tabs, Create-tab conversion, downloads tab, extra category tabs, startup selection | Customizable main page tabs, channel tabs, Shorts hiding, and keyword/channel feed & comment filters |
+| Gestures | Volume, brightness, and hold-to-seek | Vertical volume & brightness swipe gestures, swipe fullscreen, double-tap seek, and long-press speed |
+| Localization | 15 languages (`en`, `vi`, etc.) + searchable settings | 60+ languages including English & Vietnamese (`Tiếng Việt`) + searchable settings & backup/restore |
