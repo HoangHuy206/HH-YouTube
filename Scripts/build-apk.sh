@@ -2,26 +2,24 @@
 set -euo pipefail
 
 if [[ $# -gt 2 ]]; then
-  echo "usage: build-apk.sh [output.apk] [arm64-v8a|armeabi-v7a]" >&2
+  echo "usage: build-apk.sh [YouTube.apk|apk_url] [output.apk]" >&2
   exit 2
 fi
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EDITION="${HH_APK_EDITION:-allinone}"
-PIPEPIPE_VERSION="${PIPEPIPE_VERSION:-5.6.0}"
-APKEDITOR_VERSION="${APKEDITOR_VERSION:-1.4.9}"
-UBER_SIGNER_VERSION="${UBER_SIGNER_VERSION:-1.3.0}"
 MORPHE_CLI_VERSION="${MORPHE_CLI_VERSION:-2.3.0}"
 RVX_PATCHES_VERSION="${RVX_PATCHES_VERSION:-4.3.0}"
+DEFAULT_APK_URL="https://archive.org/download/jhc-apks/apks/com.google.android.youtube/com.google.android.youtube-21.13.164-all.apk"
+GOOGLE_YT_CERT_SHA256="3d7a1223019aa39d9ea0e3436ab7c0896bfb4fb679f4de5fe7c23f326c8f994a"
 
-OUTPUT_ARG="${1:-}"
-APK_ARCH="${2:-${APK_ARCH:-arm64-v8a}}"
+INPUT_SOURCE="${1:-${APK_URL:-$DEFAULT_APK_URL}}"
+OUTPUT_ARG="${2:-}"
+APK_ARCHS="${APK_ARCHS:-arm64-v8a,armeabi-v7a}"
 CACHE_DIR="${HH_APK_CACHE_DIR:-$ROOT/.build/apk-cache}"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 JAVA_BIN="${JAVA_BIN:-java}"
-KEYTOOL_BIN="${KEYTOOL_BIN:-keytool}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
 if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
   PYTHON_BIN="python"
@@ -32,126 +30,136 @@ command -v "$PYTHON_BIN" >/dev/null 2>&1 || { echo "python3 is required" >&2; ex
 command -v curl >/dev/null 2>&1 || { echo "curl is required" >&2; exit 1; }
 
 mkdir -p "$CACHE_DIR"
-HH_VERSION="$(awk '/^Version:/ {print $2}' "$ROOT/control" | tr -d '\r')"
 
-if [[ "$EDITION" == "allinone" ]]; then
-  BASE_APK="$CACHE_DIR/PipePipe_${PIPEPIPE_VERSION}-${APK_ARCH}-release.apk"
-  APKEDITOR_JAR="$CACHE_DIR/APKEditor-${APKEDITOR_VERSION}.jar"
-  SIGNER_JAR="$CACHE_DIR/uber-apk-signer-${UBER_SIGNER_VERSION}.jar"
-
-  if [[ ! -f "$BASE_APK" ]]; then
-    echo "Downloading PipePipe v${PIPEPIPE_VERSION} (${APK_ARCH})..." >&2
-    curl --fail --location --silent --show-error \
-      "https://github.com/InfinityLoop1308/PipePipe/releases/download/v${PIPEPIPE_VERSION}/PipePipe_${PIPEPIPE_VERSION}-${APK_ARCH}-release.apk" \
-      --output "$BASE_APK.tmp"
-    mv -f "$BASE_APK.tmp" "$BASE_APK"
-  fi
-
-  if [[ ! -f "$APKEDITOR_JAR" ]]; then
-    echo "Downloading APKEditor v${APKEDITOR_VERSION}..." >&2
-    curl --fail --location --silent --show-error \
-      "https://github.com/REAndroid/APKEditor/releases/download/V${APKEDITOR_VERSION}/APKEditor-${APKEDITOR_VERSION}.jar" \
-      --output "$APKEDITOR_JAR.tmp"
-    mv -f "$APKEDITOR_JAR.tmp" "$APKEDITOR_JAR"
-  fi
-
-  if [[ ! -f "$SIGNER_JAR" ]]; then
-    echo "Downloading uber-apk-signer v${UBER_SIGNER_VERSION}..." >&2
-    curl --fail --location --silent --show-error \
-      "https://github.com/patrickfav/uber-apk-signer/releases/download/v${UBER_SIGNER_VERSION}/uber-apk-signer-${UBER_SIGNER_VERSION}.jar" \
-      --output "$SIGNER_JAR.tmp"
-    mv -f "$SIGNER_JAR.tmp" "$SIGNER_JAR"
-  fi
-
-  DECODED_DIR="$WORK/decoded"
-  UNSIGNED_APK="$WORK/HH_unsigned.apk"
-  SIGNED_DIR="$WORK/signed"
-
-  "$JAVA_BIN" -jar "$APKEDITOR_JAR" d -i "$BASE_APK" -o "$DECODED_DIR" -f >&2
-  "$PYTHON_BIN" "$ROOT/Tools/customize_pipepipe.py" "$DECODED_DIR" \
-    --package "com.hoanghuy.hh" \
-    --name "YouTube" \
-    --version "$HH_VERSION" >&2
-  "$JAVA_BIN" -jar "$APKEDITOR_JAR" b -i "$DECODED_DIR" -o "$UNSIGNED_APK" -f >&2
-
-  KEYSTORE="${APK_KEYSTORE:-$CACHE_DIR/hh-release.p12}"
-  KS_PASS="${APK_KEYSTORE_PASSWORD:-hhyoutube}"
-  KS_ALIAS="${APK_KEY_ALIAS:-hh}"
-  KEY_PASS="${APK_KEY_PASSWORD:-$KS_PASS}"
-
-  if [[ ! -f "$KEYSTORE" ]]; then
-    "$KEYTOOL_BIN" -genkeypair -keystore "$KEYSTORE" -storetype PKCS12 \
-      -alias "$KS_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 \
-      -storepass "$KS_PASS" -keypass "$KEY_PASS" \
-      -dname "CN=HH, OU=Mobile, O=HoangHuy206, C=VN" >/dev/null 2>&1
-  fi
-
-  mkdir -p "$SIGNED_DIR"
-  "$JAVA_BIN" -jar "$SIGNER_JAR" \
-    --apks "$UNSIGNED_APK" \
-    --out "$SIGNED_DIR" \
-    --ks "$KEYSTORE" \
-    --ksAlias "$KS_ALIAS" \
-    --ksPass "$KS_PASS" \
-    --ksKeyPass "$KEY_PASS" >&2
-
-  SIGNED_APK="$(find "$SIGNED_DIR" -maxdepth 1 -name '*aligned*signed.apk' -print -quit)"
-  test -n "$SIGNED_APK"
-
-  if [[ -n "$OUTPUT_ARG" ]]; then
-    OUTPUT="$("$PYTHON_BIN" -c 'import os,sys; print(os.path.abspath(sys.argv[1]))' "$OUTPUT_ARG")"
-  elif [[ "$APK_ARCH" == "arm64-v8a" ]]; then
-    OUTPUT="$PWD/HH_${HH_VERSION}_YouTube.apk"
-  else
-    OUTPUT="$PWD/HH_${HH_VERSION}_YouTube_${APK_ARCH}.apk"
-  fi
-
-  mkdir -p "$(dirname "$OUTPUT")"
-  mv -f "$SIGNED_APK" "$OUTPUT"
-
-  VERIFY_FLAGS=(--package "com.hoanghuy.hh" --no-patches)
-  if [[ "$APK_ARCH" != "arm64-v8a" ]]; then
-    VERIFY_FLAGS+=(--no-arm64)
-  fi
-  "$PYTHON_BIN" "$ROOT/Tools/verify_apk.py" "${VERIFY_FLAGS[@]}" "$OUTPUT" >&2
-  echo "$OUTPUT"
-  exit 0
-fi
-
-# Optional RVX edition (stock YouTube APK + Morphe/RVX patches)
-DEFAULT_APK_URL="https://archive.org/download/jhc-apks/apks/com.google.android.youtube/com.google.android.youtube-21.13.164-all.apk"
-STOCK_URL="${APK_URL:-$DEFAULT_APK_URL}"
-STOCK_APK="$CACHE_DIR/$(basename "${STOCK_URL%%\?*}")"
 CLI_JAR="$CACHE_DIR/morphe-desktop-${MORPHE_CLI_VERSION}-all.jar"
 PATCHES_MPP="$CACHE_DIR/patches-${RVX_PATCHES_VERSION}.mpp"
 
-[[ -f "$CLI_JAR" ]] || curl --fail --location --silent --show-error \
-  "https://github.com/MorpheApp/morphe-desktop/releases/download/v${MORPHE_CLI_VERSION}/morphe-desktop-${MORPHE_CLI_VERSION}-all.jar" \
-  --output "$CLI_JAR"
-[[ -f "$PATCHES_MPP" ]] || curl --fail --location --silent --show-error \
-  "https://github.com/anddea/revanced-patches/releases/download/v${RVX_PATCHES_VERSION}/patches-${RVX_PATCHES_VERSION}.mpp" \
-  --output "$PATCHES_MPP"
-[[ -f "$STOCK_APK" ]] || curl --fail --location "$STOCK_URL" --output "$STOCK_APK"
+if [[ ! -f "$CLI_JAR" ]]; then
+  echo "Downloading Morphe CLI v${MORPHE_CLI_VERSION}..." >&2
+  curl --fail --location --silent --show-error \
+    "https://github.com/MorpheApp/morphe-desktop/releases/download/v${MORPHE_CLI_VERSION}/morphe-desktop-${MORPHE_CLI_VERSION}-all.jar" \
+    --output "$CLI_JAR.tmp"
+  mv -f "$CLI_JAR.tmp" "$CLI_JAR"
+fi
+
+if [[ ! -f "$PATCHES_MPP" ]]; then
+  echo "Downloading RVX patches v${RVX_PATCHES_VERSION}..." >&2
+  curl --fail --location --silent --show-error \
+    "https://github.com/anddea/revanced-patches/releases/download/v${RVX_PATCHES_VERSION}/patches-${RVX_PATCHES_VERSION}.mpp" \
+    --output "$PATCHES_MPP.tmp"
+  mv -f "$PATCHES_MPP.tmp" "$PATCHES_MPP"
+fi
+
+if [[ "$INPUT_SOURCE" =~ ^https?:// ]]; then
+  STOCK_APK="$CACHE_DIR/$(basename "${INPUT_SOURCE%%\?*}")"
+  if [[ "$STOCK_APK" != *.apk && "$STOCK_APK" != *.apkm && "$STOCK_APK" != *.xapk && "$STOCK_APK" != *.apks ]]; then
+    STOCK_APK="$CACHE_DIR/YouTube-stock.apk"
+  fi
+  if [[ ! -f "$STOCK_APK" ]]; then
+    echo "Downloading stock YouTube APK..." >&2
+    if [[ -n "${GH_TOKEN:-}" && "$INPUT_SOURCE" == "https://api.github.com/repos/"* ]]; then
+      curl --fail --location \
+        --header "Accept: application/octet-stream" \
+        --header "Authorization: Bearer $GH_TOKEN" \
+        "$INPUT_SOURCE" --output "$STOCK_APK.tmp"
+    else
+      curl --fail --location "$INPUT_SOURCE" --output "$STOCK_APK.tmp"
+    fi
+    mv -f "$STOCK_APK.tmp" "$STOCK_APK"
+  fi
+else
+  STOCK_APK="$INPUT_SOURCE"
+  test -f "$STOCK_APK"
+fi
+
+if [[ "$STOCK_APK" == *.apk ]]; then
+  if command -v apksigner >/dev/null 2>&1; then
+    CERT_LINE="$(apksigner verify --print-certs "$STOCK_APK" | grep 'Signer #1 certificate SHA-256' || true)"
+    if [[ -n "$CERT_LINE" && "${CERT_LINE,,}" != *"${GOOGLE_YT_CERT_SHA256,,}"* ]]; then
+      echo "Stock APK SHA-256 certificate mismatch: $CERT_LINE" >&2
+      exit 1
+    fi
+  elif command -v keytool >/dev/null 2>&1; then
+    CERT_HEX="$(keytool -printcert -jarfile "$STOCK_APK" 2>/dev/null | awk '/SHA256:/ {gsub(/:/, "", $2); print tolower($2); exit}')"
+    if [[ -n "$CERT_HEX" && "$CERT_HEX" != "$GOOGLE_YT_CERT_SHA256" ]]; then
+      echo "Stock APK SHA-256 certificate mismatch: $CERT_HEX" >&2
+      exit 1
+    fi
+  fi
+fi
 
 export MORPHE_DATA_DIR="${MORPHE_DATA_DIR:-$CACHE_DIR/morphe-data}"
 mkdir -p "$MORPHE_DATA_DIR"
-PATCHED_TMP="$WORK/HH_RVX.apk"
+
+PATCHED_TMP="$WORK/HH_YouTube_patched.apk"
+RESULT_JSON="$WORK/result.json"
 OPTIONS_WORK="$WORK/options.json"
 cp "$ROOT/Android/options.json" "$OPTIONS_WORK"
+
+SIGN_ARGS=(--signer "${APK_SIGNER:-HH}")
+if [[ -n "${APK_KEYSTORE:-}" ]]; then
+  SIGN_ARGS+=(--keystore "$APK_KEYSTORE")
+  if [[ -n "${APK_KEYSTORE_PASSWORD:-}" ]]; then
+    SIGN_ARGS+=(--keystore-password "$APK_KEYSTORE_PASSWORD")
+  fi
+  if [[ -n "${APK_KEY_ALIAS:-}" ]]; then
+    SIGN_ARGS+=(--keystore-entry-alias "$APK_KEY_ALIAS")
+  fi
+  if [[ -n "${APK_KEY_PASSWORD:-}" ]]; then
+    SIGN_ARGS+=(--keystore-entry-password "$APK_KEY_PASSWORD")
+  fi
+fi
+
+STRIP_ARGS=()
+if [[ -n "$APK_ARCHS" && "$APK_ARCHS" != "all" ]]; then
+  STRIP_ARGS+=(--striplibs "$APK_ARCHS")
+fi
 
 "$JAVA_BIN" --enable-native-access=ALL-UNNAMED -jar "$CLI_JAR" patch \
   --patches "$PATCHES_MPP" \
   --options-file "$OPTIONS_WORK" \
   --out "$PATCHED_TMP" \
+  --result-file "$RESULT_JSON" \
   --temporary-files-path "$WORK/tmp" \
-  --striplibs "arm64-v8a,armeabi-v7a" \
-  --signer "HH" \
   --force \
+  "${STRIP_ARGS[@]}" \
+  "${SIGN_ARGS[@]}" \
   "$STOCK_APK" >&2
 
-OUTPUT="${OUTPUT_ARG:-$PWD/HH_${HH_VERSION}_YouTube_RVX_21.13.164.apk}"
+HH_VERSION="$(awk '/^Version:/ {print $2}' "$ROOT/control" | tr -d '\r')"
+YT_VERSION="$(
+  "$PYTHON_BIN" - "$RESULT_JSON" "$STOCK_APK" <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+result_path = pathlib.Path(sys.argv[1])
+stock_name = pathlib.Path(sys.argv[2]).name
+version = ""
+if result_path.is_file():
+    data = json.loads(result_path.read_text(encoding="utf-8"))
+    for key in ("packageVersion", "version", "appVersion", "versionName"):
+        val = data.get(key)
+        if isinstance(val, str) and val.strip():
+            version = val.strip()
+            break
+if not version:
+    match = re.search(r"(\d+\.\d+\.\d+)", stock_name)
+    version = match.group(1) if match else "unknown"
+print(version)
+PY
+)"
+
+if [[ -n "$OUTPUT_ARG" ]]; then
+  OUTPUT="$("$PYTHON_BIN" -c 'import os,sys; print(os.path.abspath(sys.argv[1]))' "$OUTPUT_ARG")"
+else
+  OUTPUT="$PWD/HH_${HH_VERSION}_YouTube_${YT_VERSION}.apk"
+fi
+
 mkdir -p "$(dirname "$OUTPUT")"
 mv -f "$PATCHED_TMP" "$OUTPUT"
 rm -f "${OUTPUT}.idsig"
+
 "$PYTHON_BIN" "$ROOT/Tools/verify_apk.py" "$OUTPUT" >&2
 echo "$OUTPUT"

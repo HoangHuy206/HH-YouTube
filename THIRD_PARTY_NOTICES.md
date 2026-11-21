@@ -1,20 +1,17 @@
 # Third-Party Notices
 
-YTKACE / HH iOS tweak source is licensed under MIT. The following components, Android base clients, patch tools, and services have separate terms.
+YTKACE / HH iOS tweak source is licensed under MIT. The following components, Android patch tools, and services have separate terms.
 
-## PipePipe & NewPipe (Android All-in-One APK)
+## ReVanced Extended Patches & Morphe Desktop (Android APK Injection)
 
-The default standalone single-file Android build (`HH_1.1.1_YouTube.apk`, built by `Scripts/build-apk.sh` and `Tools/customize_pipepipe.py`) is customized from [PipePipe](https://github.com/InfinityLoop1308/PipePipe) v5.6.0 by InfinityLoop1308 (forked from [NewPipe](https://github.com/TeamNewPipe/NewPipe) by TeamNewPipe). PipePipe and NewPipe are free and open-source software licensed under the **GNU General Public License v3.0 (GPLv3)** (https://www.gnu.org/licenses/gpl-3.0.html). Modifications performed by `Tools/customize_pipepipe.py` (package namespace `com.hoanghuy.hh`, `HH` launcher branding, OLED black default theme, 1080p default resolution, and disabling upstream auto-update prompts) are distributed in source form in this repository under GPLv3 compatibility, preserving all upstream in-app About/License credits.
+The Android APK build (`Scripts/build-apk.sh`, `.github/workflows/build-apk.yml`, `Android/options.json`) injects unmodified patch bundles from [anddea/revanced-patches](https://github.com/anddea/revanced-patches) (originally forked from [inotia00](https://github.com/inotia00) and [ReVanced](https://github.com/ReVanced), with contributions ported from [Morphe](https://github.com/MorpheApp/morphe-patches)) using [Morphe Desktop](https://github.com/MorpheApp/morphe-desktop) and [Morphe Patcher](https://github.com/MorpheApp/morphe-patcher). Both projects are licensed under the **GNU General Public License v3.0 (GPLv3)** with Section 7 attribution and distinct-branding conditions:
+- Original authors (**anddea**, **inotia00**, **ReVanced**, and **Morphe** contributors) and all in-app About/Credits notices are preserved unmodified.
 
-## APKEditor & uber-apk-signer
+## MicroG-RE / ReVanced GmsCore & YTDLnis
 
-Android resource decoding/rebuilding and APK v1/v2/v3 signing in `Scripts/build-apk.sh` use:
-- [REAndroid/APKEditor](https://github.com/REAndroid/APKEditor) — licensed under the **Apache License 2.0**.
-- [patrickfav/uber-apk-signer](https://github.com/patrickfav/uber-apk-signer) — licensed under the **Apache License 2.0**.
-
-## ReVanced Extended Patches & Morphe Desktop (Optional RVX Edition)
-
-The optional `rvx` Android build mode (`Android/options.json`, `HH_APK_EDITION=rvx`) applies unmodified patch bundles from [anddea/revanced-patches](https://github.com/anddea/revanced-patches) using [MorpheApp/morphe-desktop](https://github.com/MorpheApp/morphe-desktop), both licensed under the **GNU General Public License v3.0 (GPLv3)** with Section 7 attribution terms. Original authors (**anddea**, **inotia00**, **ReVanced**, and **Morphe** contributors) and in-app credits are preserved unmodified.
+Companion Android packages downloaded by `.github/workflows/build-apk.yml` are unmodified upstream releases:
+- [MorpheApp/MicroG-RE](https://github.com/MorpheApp/MicroG-RE) / [ReVanced/GmsCore](https://github.com/ReVanced/GmsCore) — Copyright microG Project Team, licensed under the **Apache License 2.0**.
+- [deniscerri/ytdlnis](https://github.com/deniscerri/ytdlnis) — Copyright Denis Cerri, licensed under the **GNU General Public License v3.0 (GPLv3)**.
 
 ## FFmpeg
 
@@ -26,7 +23,7 @@ SponsorBlock and DeArrow community data is provided by the SponsorBlock service 
 
 ## SABR reference
 
-The iOS download path implements YouTube's SABR streaming protocol. It was written for YTKACE, developed against an iPad on iOS 16. Protocol understanding came in part from reading [LuanRT/googlevideo](https://github.com/LuanRT/googlevideo), an MIT-licensed library implementing UMP and SABR. No code from that project is included.
+The iOS download path implements YouTube's SABR streaming protocol. Protocol understanding came in part from reading [LuanRT/googlevideo](https://github.com/LuanRT/googlevideo), an MIT-licensed library implementing UMP and SABR. No code from that project is included.
 
 ## YTPlaybackFix
 
